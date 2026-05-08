@@ -10,7 +10,9 @@ namespace ChatBlockchain.Api.Services
             try
             {
                 var signer = new EthereumMessageSigner();
+                _logger.LogInformation("Verificando firma. Message: {Message}, Signature: {Signature}, Expected Address: {ExpectedAddress}", message, signature, expectedAddress);
                 var recoveredAddress = signer.EncodeUTF8AndEcRecover(message, signature);
+                _logger.LogInformation("Dirección recuperada: {RecoveredAddress}", recoveredAddress);
                 return string.Equals(recoveredAddress, expectedAddress, StringComparison.OrdinalIgnoreCase);
             }
             catch(Exception ex)

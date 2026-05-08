@@ -43,6 +43,7 @@ public class AuthController : ControllerBase
         if (!_nonces.TryGetValue(req.Address, out var stored) || stored.challenge != req.OriginalChallenge || stored.expiry < DateTime.UtcNow)
             return Unauthorized("Nonce inválido o expirado");
 
+        _logger.LogInformation("Verificando firma para dirección: {Address}", req.Address);
         if (!_crypto.VerifySignature(req.OriginalChallenge, req.Signature, req.Address))
             return Unauthorized("Firma inválida");
 
