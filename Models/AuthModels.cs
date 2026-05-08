@@ -23,6 +23,11 @@ public class LoginResponse
     public string Address { get; set; } = string.Empty;
 }
 
+public class RegisterPublicKeyRequest
+{
+    public string PublicKeyHex { get; set; } = string.Empty;
+}
+
 public class User
 {
     public string Address { get; set; } = string.Empty;
