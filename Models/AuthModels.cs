@@ -23,7 +23,9 @@ public class LoginResponse
     public string Address { get; set; } = string.Empty;
 }
 
-public class RegisterPublicKeyRequest
+public class User
 {
+    public string Address { get; set; } = string.Empty;
     public string PublicKeyHex { get; set; } = string.Empty;
+    public string Username { get; set; } = string.Empty;
 }

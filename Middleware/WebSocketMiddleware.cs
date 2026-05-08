@@ -5,11 +5,12 @@ using ChatBlockchain.Api.Services;
 
 namespace ChatBlockchain.Api.Middleware;
 
-public class WebSocketMiddleware(RequestDelegate next, WebSocketManagerService wsManager, JwtService jwtService)
+public class WebSocketMiddleware(RequestDelegate next, WebSocketManagerService wsManager, JwtService jwtService, ILogger<WebSocketMiddleware> logger)
 {
     private readonly RequestDelegate _next = next;
     private readonly WebSocketManagerService _wsManager = wsManager;
     private readonly JwtService _jwtService = jwtService;
+    private readonly ILogger<WebSocketMiddleware> _logger = logger;
 
     public async Task InvokeAsync(HttpContext context)
     {
@@ -63,9 +64,25 @@ public class WebSocketMiddleware(RequestDelegate next, WebSocketManagerService w
         finally
         {
             _wsManager.RemoveSocket(address);
-            if (webSocket.State != WebSocketState.Closed)
-                await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
+            
+            // Solo intentar cerrar si el estado es válido para CloseAsync
+            if (webSocket.State == WebSocketState.Open || 
+                webSocket.State == WebSocketState.CloseReceived || 
+                webSocket.State == WebSocketState.CloseSent)
+            {
+                try
+                {
+                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
+                }
+                catch (WebSocketException ex)
+                {
+                    _logger.LogWarning(ex, "Error occurred while closing WebSocket for address: {Address}", address);
+                    // Log si quieres, pero no es necesario relanzar
+                    // Console.WriteLine($"Error closing WebSocket: {ex.Message}");
+                }
+            }
+            
             webSocket.Dispose();
-        }
+}
     }
 }

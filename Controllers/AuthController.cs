@@ -56,17 +56,20 @@ public class AuthController : ControllerBase
     [HttpPost("registerPublicKey")]
     public IActionResult RegisterPublicKey([FromBody] RegisterPublicKeyRequest req)
     {
+        _logger.LogInformation("Registrando clave pública para dirección: {Address}", req.PublicKeyHex);
         var address = User.FindFirst("address")?.Value;
         if (string.IsNullOrEmpty(address)) return Unauthorized();
 
         _publicKeys[address] = req.PublicKeyHex;
-        return Ok();
+        _logger.LogInformation("Clave pública registrada para dirección: {Address}", _publicKeys[address]); return Ok();
     }
 
     [Authorize]
     [HttpGet("publicKey/{address}")]
     public IActionResult GetPublicKey(string address)
     {
+        _logger.LogInformation("Obteniendo clave pública para dirección: {Address}", address);
+        _logger.LogInformation("Claves públicas actuales: {PublicKeys}", _publicKeys.Count == 0 ? "No hay claves registradas" : string.Join(", ", _publicKeys.Select(kv => $"{kv.Key}: {kv.Value}")));
         if (_publicKeys.TryGetValue(address, out var pubKey))
             return Ok(new { publicKey = pubKey });
         return NotFound("Usuario no encontrado");
