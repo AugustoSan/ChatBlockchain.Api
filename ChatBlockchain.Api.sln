@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatBlockchain.Api", "ChatBlockchain.Api.csproj", "{CAECD959-2966-5166-6D99-92B50A801E3F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CAECD959-2966-5166-6D99-92B50A801E3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAECD959-2966-5166-6D99-92B50A801E3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAECD959-2966-5166-6D99-92B50A801E3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAECD959-2966-5166-6D99-92B50A801E3F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C38814D4-5425-48A1-96FF-3F6CC510EFDE}
+	EndGlobalSection
+EndGlobal
