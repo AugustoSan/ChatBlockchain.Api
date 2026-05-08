@@ -38,7 +38,8 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginRequest req)
     {
-        _logger.LogInformation("Intentando iniciar sesión para dirección: {Address}", req.Address);
+        _logger.LogInformation("Intentando iniciar sesión para dirección: {Address} {Challenge} {Signature}", req.Address, req.OriginalChallenge, req.Signature);
+        _logger.LogInformation("Nonces actuales: {Nonces}", !_nonces.TryGetValue(req.Address, out var store) ? "No encontrado" : $"Encontrado - Challenge: {store.challenge}, Expiry: {store.expiry}");
         if (!_nonces.TryGetValue(req.Address, out var stored) || stored.challenge != req.OriginalChallenge || stored.expiry < DateTime.UtcNow)
             return Unauthorized("Nonce inválido o expirado");
 

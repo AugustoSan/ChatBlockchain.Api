@@ -55,7 +55,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
 
 app.UseWebSockets(); // Habilitar WebSockets
