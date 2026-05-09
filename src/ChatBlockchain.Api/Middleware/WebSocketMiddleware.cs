@@ -28,6 +28,7 @@ public class WebSocketMiddleware(RequestDelegate next, WebSocketManagerService w
             }
 
             using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+            _logger.LogInformation("WebSocket aceptado para la dirección: {Address}", address);
             _wsManager.AddSocket(address!, webSocket);
             await HandleWebSocketAsync(address!, webSocket);
         }

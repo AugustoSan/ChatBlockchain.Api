@@ -7,10 +7,14 @@ using ChatBlockchain.Core.Options;
 using ChatBlockchain.Application.Extensions;
 using ChatBlockchain.Core.Interfaces.Services;
 using ChatBlockchain.Infraestructure.Extensions;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+});
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
