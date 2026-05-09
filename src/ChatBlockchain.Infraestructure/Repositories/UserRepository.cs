@@ -39,8 +39,9 @@ namespace ChatBlockchain.Infraestructure.Repositories
 
         public async Task<UserModel?> GetuserByPublicKeyAsync(string publicKey)
         {
-            var user = _context.Users.Where(u => u.PublicKeyHex == publicKey);
-            return user.FirstOrDefault();
+            Console.WriteLine($"Buscando usuario por clave pública: {publicKey}");
+            var users = await _context.Users.Where(u => u.PublicKeyHex == publicKey).ToListAsync();
+            return users.FirstOrDefault();
         }
 
         public async Task<IEnumerable<UserModel>> ListUsersAsync()

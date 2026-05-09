@@ -63,13 +63,11 @@ if (app.Environment.IsDevelopment())
 }
 
 // app.UseHttpsRedirection();
-
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseWebSockets(); // Habilitar WebSockets
 app.UseMiddleware<WebSocketMiddleware>(); // Nuestro middleware custom
-
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapControllers();
 

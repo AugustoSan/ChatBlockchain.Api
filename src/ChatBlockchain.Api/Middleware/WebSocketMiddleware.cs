@@ -18,6 +18,7 @@ public class WebSocketMiddleware(RequestDelegate next, WebSocketManagerService w
     {
         if (context.WebSockets.IsWebSocketRequest && context.Request.Path == "/ws")
         {
+            _logger.LogInformation("Iniciando conexión WebSocket");
             // Obtener token del query string
             var token = context.Request.Query["token"].ToString();
             if (string.IsNullOrEmpty(token) || !_jwtService.ValidateToken(token, out var address))
@@ -26,7 +27,7 @@ public class WebSocketMiddleware(RequestDelegate next, WebSocketManagerService w
                 return;
             }
 
-            var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+            using var webSocket = await context.WebSockets.AcceptWebSocketAsync();
             _wsManager.AddSocket(address!, webSocket);
             await HandleWebSocketAsync(address!, webSocket);
         }
@@ -51,9 +52,12 @@ public class WebSocketMiddleware(RequestDelegate next, WebSocketManagerService w
                 }
 
                 var messageJson = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                var envelope = JsonSerializer.Deserialize<EncryptedMessageEnvelope>(messageJson);
+                _logger.LogInformation("Recibiendo mensaje WebSocket: {MessageJson}", messageJson);
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var envelope = JsonSerializer.Deserialize<EncryptedMessageEnvelope>(messageJson, options);
                 if (envelope != null)
                 {
+                    _logger.LogInformation("Deserializando envelope: {Envelope}", envelope.Text);
                     envelope.From = address;
                     envelope.Timestamp = DateTime.UtcNow.ToString("o");
                     var forwardJson = JsonSerializer.Serialize(envelope);
