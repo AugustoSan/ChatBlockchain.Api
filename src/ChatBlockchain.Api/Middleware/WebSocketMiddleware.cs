@@ -45,28 +45,51 @@ public class WebSocketMiddleware(RequestDelegate next, WebSocketManagerService w
         {
             while (webSocket.State == WebSocketState.Open)
             {
-                var result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                if (result.MessageType == WebSocketMessageType.Close)
+                WebSocketReceiveResult result;
+                try
                 {
-                    await webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
+                    result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                }
+                catch (WebSocketException ex) when (ex.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely ||
+                                                    ex.InnerException is TimeoutException)
+                {
+                    _logger.LogWarning("WebSocket connection closed prematurely for {Address}: {Message}", address, ex.Message);
+                    break;
+                }
+                catch (OperationCanceledException)
+                {
                     break;
                 }
 
-                var messageJson = Encoding.UTF8.GetString(buffer, 0, result.Count);
-                _logger.LogInformation("Recibiendo mensaje WebSocket: {MessageJson}", messageJson);
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                var envelope = JsonSerializer.Deserialize<EncryptedMessageEnvelope>(messageJson, options);
-                if (envelope != null)
+                if (result.MessageType == WebSocketMessageType.Close)
                 {
-                    _logger.LogInformation("Deserializando envelope: {Envelope}", envelope.Text);
-                    envelope.From = address;
-                    envelope.Timestamp = DateTime.UtcNow.ToString("o");
-                    var forwardJson = JsonSerializer.Serialize(envelope);
+                    _logger.LogInformation("Close frame received for {Address}", address);
+                    await webSocket.CloseOutputAsync(WebSocketCloseStatus.NormalClosure, "", CancellationToken.None);
+                    break;
+                }
 
-                    // Enviar solo al destinatario (envío dirigido)
-                    await _wsManager.SendToAddressAsync(envelope.To, forwardJson);
+                if (result.MessageType == WebSocketMessageType.Text) 
+                {    
+                    var messageJson = Encoding.UTF8.GetString(buffer, 0, result.Count);
+                    _logger.LogInformation("Recibiendo mensaje WebSocket: {MessageJson}", messageJson);
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var envelope = JsonSerializer.Deserialize<EncryptedMessageEnvelope>(messageJson, options);
+                    if (envelope != null)
+                    {
+                        _logger.LogInformation("Deserializando envelope: {Envelope}", envelope.Text);
+                        envelope.From = address;
+                        envelope.Timestamp = DateTime.UtcNow.ToString("o");
+                        var forwardJson = JsonSerializer.Serialize(envelope);
+
+                        // Enviar solo al destinatario (envío dirigido)
+                        await _wsManager.SendToAddressAsync(envelope.To, forwardJson);
+                    }
                 }
             }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error in WebSocket loop for {Address}", address);
         }
         finally
         {

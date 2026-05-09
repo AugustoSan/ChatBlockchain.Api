@@ -10,7 +10,7 @@ namespace ChatBlockchain.Api.Services
         
         public void AddSocket(string address, WebSocket socket)
         {
-            string normalizedAddress = address.ToLower();
+            string normalizedAddress = address.ToUpper();
             // Implement logic to add the WebSocket connection for the given address
             _logger.LogInformation($"WebSocket connection added for address: {normalizedAddress}");
             _sockets.TryAdd(normalizedAddress, socket);
@@ -18,7 +18,7 @@ namespace ChatBlockchain.Api.Services
 
         public void RemoveSocket(string address)
         {
-            string normalizedAddress = address.ToLower();
+            string normalizedAddress = address.ToUpper();
             // Implement logic to remove the WebSocket connection for the given address
             _logger.LogInformation($"WebSocket connection removed for address: {normalizedAddress}");
             _sockets.Remove(normalizedAddress);
@@ -27,12 +27,12 @@ namespace ChatBlockchain.Api.Services
         public async Task SendToAddressAsync(string address, string messageJson)
         {
             // Implement logic to send a message to the WebSocket connection associated with the given address
-            string normalizedAddress = address.ToLower();
+            string normalizedAddress = address.ToUpper();
             _sockets.TryGetValue(normalizedAddress, out var socket);
             _logger.LogInformation($"Enviando mensaje a la dirección: {normalizedAddress}");
             _logger.LogInformation($"Socket encontrado: {socket != null}");
             string text = "Socket no encontrado";
-            _logger.LogInformation($"Estado del socket: {((socket != null) ? socket.State : text )}");
+            _logger.LogInformation($"Estado del socket{normalizedAddress}: {((socket != null) ? socket.State : text )}");
             if (socket != null && socket.State == WebSocketState.Open)
             {
                 var buffer = System.Text.Encoding.UTF8.GetBytes(messageJson);
@@ -46,7 +46,7 @@ namespace ChatBlockchain.Api.Services
         }
         public async Task BroadcastToAllExceptAsync(string exceptAddress, string messageJson)
         {
-            string normalizedExceptAddress = exceptAddress.ToLower();
+            string normalizedExceptAddress = exceptAddress.ToUpper();
             var tasks = _sockets.Where(kvp => kvp.Key != normalizedExceptAddress && kvp.Value.State == WebSocketState.Open)
                                 .Select(kvp => kvp.Value.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(messageJson)), WebSocketMessageType.Text, true, CancellationToken.None));
             await Task.WhenAll(tasks);
