@@ -24,6 +24,7 @@ namespace ChatBlockchain.Infraestructure.Extensions
             services.AddSingleton<IJwtService, JwtService>();
             services.AddSingleton<INonceStore, MemoryNonceStore>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IContactsRepository, ContactsRepository>();
 
             return services;
         }

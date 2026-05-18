@@ -9,15 +9,18 @@ using MediatR;
 using ChatBlockchain.Application.Users.Queries.GetChallenge;
 using ChatBlockchain.Application.Users.Command.RegisterPublicKey;
 using ChatBlockchain.Application.Users.Queries.GetValidateAddress;
+using ChatBlockchain.Application.Users.Queries.GetContacts;
+using ChatBlockchain.Core.Interfaces.Services;
 
 namespace ChatBlockchain.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(IMediator mediator, ILogger<UserController> logger) : ControllerBase
+public class UserController(IMediator mediator, ICurrentUserService currentUserService, ILogger<UserController> logger) : ControllerBase
 {
     private readonly ILogger<UserController> _logger = logger;
     private readonly IMediator _mediator = mediator;
+    private readonly ICurrentUserService _currentUserService = currentUserService;
     [HttpPost("challenge")]
     public async Task<IActionResult> GetChallenge([FromBody] ChallengeRequest req)
     {
@@ -41,6 +44,16 @@ public class UserController(IMediator mediator, ILogger<UserController> logger) 
     {
         _logger.LogInformation("Obteniendo clave pública para dirección: {Address}", address);
         var response = await _mediator.Send(new GetValidateAddressQuery { Address = address });   
+        return Ok(response);
+    }
+
+    [Authorize]
+    [HttpGet("contacts")]
+    public async Task<IActionResult> GetContacts()
+    {
+        var address = _currentUserService.GetCurrentUserAddress() ?? throw new InvalidOperationException("Dirección no encontrada");
+        _logger.LogInformation("Obteniendo contactos para dirección: {Address}", address);
+        var response = await _mediator.Send(new GetContactsQuery { Address = address });
         return Ok(response);
     }
 }

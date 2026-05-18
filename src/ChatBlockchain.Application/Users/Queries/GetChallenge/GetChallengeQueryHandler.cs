@@ -11,9 +11,19 @@ namespace ChatBlockchain.Application.Users.Queries.GetChallenge
         public Task<ChallengeDto> Handle(GetChallengeQuery request, CancellationToken cancellationToken)
         {
             var nonce = RandomNumberGenerator.GetInt32(100000, 999999).ToString();
-            var challengeMsg = $"Inicia sesión en ChatBlockchain con nonce: {nonce}";
-            _nounceStore.Add(request.Address, nonce, challengeMsg, TimeSpan.FromMinutes(5));
-            return Task.FromResult(new ChallengeDto { Challenge = challengeMsg });
+            var stringMsjRandom = GenerarCadenaAleatoria(20);
+            var challenge = stringMsjRandom + nonce;
+            _nounceStore.Add(request.Address, nonce, challenge, TimeSpan.FromMinutes(5));
+            return Task.FromResult(new ChallengeDto { Challenge = challenge });
+        }
+
+        private static string GenerarCadenaAleatoria(int longitud)
+        {
+            Random random = new Random();
+            const string caracteres = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            
+            return new string(Enumerable.Repeat(caracteres, longitud)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

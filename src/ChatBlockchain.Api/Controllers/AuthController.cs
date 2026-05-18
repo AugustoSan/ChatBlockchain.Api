@@ -18,7 +18,19 @@ public class AuthController(IMediator mediator) : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequest req)
     {
-        var response = await _mediator.Send(new AuthLoginCommand { Address = req.Address, OriginalChallenge = req.OriginalChallenge, Signature = req.Signature });
-        return Ok(response);
+        try
+        {
+            var response = await _mediator.Send(new AuthLoginCommand { Address = req.Address, OriginalChallenge = req.OriginalChallenge, Signature = req.Signature });
+            return Ok(response);
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized();
+        }
+        catch (System.Exception)
+        {
+            
+            return BadRequest();
+        }
     }
 }

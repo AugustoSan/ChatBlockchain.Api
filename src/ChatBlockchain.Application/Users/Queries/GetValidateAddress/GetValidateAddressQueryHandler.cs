@@ -8,9 +8,8 @@ using ChatBlockchain.Application.Users.Dtos;
 namespace ChatBlockchain.Application.Users.Queries.GetValidateAddress
 {
     public class GetValidateAddressQueryHandler(
-        ICryptoService cryptoService, IUserRepository userRepository, ILogger<GetValidateAddressQueryHandler> logger) : IRequestHandler<GetValidateAddressQuery, PublicKeyDto>
+        IUserRepository userRepository, ILogger<GetValidateAddressQueryHandler> logger) : IRequestHandler<GetValidateAddressQuery, PublicKeyDto>
     {
-        private readonly ICryptoService _cryptoService = cryptoService;
         private readonly IUserRepository _userRepository = userRepository;
         private readonly ILogger<GetValidateAddressQueryHandler> _logger = logger;
         public async Task<PublicKeyDto> Handle(GetValidateAddressQuery request, CancellationToken cancellationToken)

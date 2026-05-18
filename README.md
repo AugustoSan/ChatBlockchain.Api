@@ -57,7 +57,7 @@ dotnet ef database update --project ../ChatBlockchain.Infraestructure --startup-
 Si necesitas crear una nueva migración desde la carpeta raíz:
 
 ```bash
-dotnet ef migrations add NombreMigracion --project src/ChatBlockchain.Infraestructure --startup-project src/ChatBlockchain.Api
+dotnet ef migrations add MigrationName --startup-project src/ChatBlockchain.Api --project src/ChatBlockchain.Infraestructure
 ```
 
 Endpoints principales
